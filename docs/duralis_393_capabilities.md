@@ -59,9 +59,18 @@ which is a different scale from the one capability 105906 uses. Two points fit
 mapping — the integration exposes the degrees actually on the wire and leaves
 the app's presentation scale alone.
 
-What is still unidentified is the **first element of each pair** in 237–243
-(always `0` so far) and why that block holds four pairs where the time block
-holds three.
+The **first element of each pair in 237–243 is the minute the slot starts**, so
+`[[0,58],[0,0],[0,0],[0,0]]` reads "58 °C from 00:00", with three unused slots.
+That is the format upstream PR #165 documents for the weekly programs of
+thermostats, where a day is stored as `[[minutes, temperature], ...]`; it fits
+every value seen here, and explains why the first element has always been `0` —
+the app only ever offers a single setpoint per day, starting at midnight.
+
+Note this differs from the neighbouring time block: 245–251 hold
+`[start, end]` ranges, not `[start, value]` pairs. Both readings are pinned by
+the same capture — `[0,435]` and `[1395,1440]` line up with the app drawing
+bars at 00:00–07:15 and 23:15–24:00, and moving one range wrote `435 → 450`,
+i.e. the *end* of the first window.
 
 ### Writing the program
 
@@ -76,8 +85,10 @@ Because every day has its own capability, writing one day cannot disturb the
 others.
 
 The setpoints are exposed as writable numbers, one per day. They rewrite the
-first pair and carry the remaining pairs over untouched, so the shape sent back
-is byte for byte the one the app sends. Bounds come from 253/252 (50–65 °C).
+temperature of the first slot, leaving its start minute and the remaining slots
+untouched, so the shape sent back is byte for byte the one the app sends. A day
+holding several setpoint slots would therefore only expose its first through
+this entity, which matches what the app offers. Bounds come from 253/252 (50–65 °C).
 Note that the app itself only offers its percentage scale in steps of about
 4 °C; whether the appliance accepts arbitrary values in between has not been
 tested.
@@ -165,6 +176,30 @@ ranges" selected while 230 read `1`.
 
 This also accounts for heating seen running in eco+ outside the ranges: at that
 point the setting had just been moved to permanent.
+
+## 3c. Field data that contradicts an open upstream change
+
+Upstream PR #146 proposes renumbering the tank sensors to
+`264 = bottom, 265 = middle, 266 = top, 267 = average`. On this appliance that
+last one does not hold:
+
+| Capability | Reading |
+|---:|---:|
+| 264 | 27.24 °C |
+| 265 | 44.47 °C |
+| 266 | 49.97 °C |
+| 267 | 24.43 °C |
+
+267 is **colder than all three others**, so it cannot be their average, which
+would fall around 40.6 °C. The current upstream naming — 267 as the bottom of
+the tank, the coldest point of a stratified cylinder, with 264 the condenser of
+the heat pump — is consistent with these readings, and 264/265/266 do not fit a
+bottom/middle/top ordering on their own since 264 sits between the bottom and
+the middle.
+
+This is one appliance, and PR #146 cites Atlantic's own capability list, so it
+may simply be that the numbering differs across families. Worth checking against
+a second ACI HYB before either naming is treated as settled.
 
 ## 4. Platform notes
 
