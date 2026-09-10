@@ -211,7 +211,7 @@
             "heat":                     { "name": "Chauffage" },
             "heat_pump_z1":             { "name": "PAC Z1" },
             "heat_pump_z2":             { "name": "PAC Z2" },
-            "hot_water_available":      { "name": "Hot Water Available" },
+            "hot_water_available":      { "name": "Eau chaude disponible" },
             "interface_fw":             { "name": "Interface FW" },
             "temperature_setpoint":     { "name": "Température Consigne" },
             "model_name":               { "name": "Modèle" },
