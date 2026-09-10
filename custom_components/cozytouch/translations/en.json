@@ -139,6 +139,9 @@
             "away_mode_stop":   { "name": "Away Mode Stop" }
         },
         "number": {
+            "applied_target_temperature":            { "name": "Applied Target Temperature" },
+            "applied_target_temperature_percent":    { "name": "Applied Target Temperature (%)" },
+            "target_temperature_dhw_percent":        { "name": "DHW Target Temperature (%)" },
             "prog_temperature_01":       { "name": "Prog Temperature 01 (Mon)" },
             "prog_temperature_02":       { "name": "Prog Temperature 02 (Tue)" },
             "prog_temperature_03":       { "name": "Prog Temperature 03 (Wed)" },

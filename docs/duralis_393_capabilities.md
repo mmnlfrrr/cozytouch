@@ -108,7 +108,8 @@ No direct write, but the value moved in a reproducible, explainable way.
 | ID | Meaning | Evidence | Confidence |
 |---:|---|---|---|
 | 105122 | Boost end time, **naive local-time epoch** | Set to a value exactly equal to the boost write time + 1440 min (the duration written to 232), to the second. Reset to `0` when the mode left boost. Decoded as UTC it yields the appliance's *local* wall-clock time (`12:49:43`, for a boost started at `12:49:41` local), so it must not be shifted by the timezone capability 315 as well. | High |
-| 105906 / 105907 | Setpoint expressed as **% of the 15–65 °C range** | `65 °C → 100`, `62 °C → 94`, `50 °C → 70`, i.e. exactly `(T − 15) / 50 × 100`. Matches the `temperatureMin`/`temperatureMax` already declared for these ids. | High |
+| 312 | The setpoint **currently applied** | It follows the active mode rather than a stored preference: 65 under boost while 22 stayed at 50, back to 50 in eco+, and the value held by the current day of the program in prog mode. Five mode changes, each matching. | High |
+| 105906 / 105907 | Setpoint expressed as **% of the 15–65 °C range**, 105906 mirroring 312 and 105907 mirroring 22 | `65 °C → 100`, `62 °C → 94`, `58 °C → 86`, `50 °C → 70`, i.e. exactly `(T − 15) / 50 × 100`. Each moved in the same snapshot as the capability it mirrors, six times. | High |
 | 99 | Resistance / heating active | `0 → 1` when heating began, `→ 0` once the device settled in prog. | High |
 | 278 | Electrical power drawn (W) | Toggled `0 ↔ 2100` in lockstep with 99, on a 2200 W appliance. | Medium |
 | 281 | Secondary heating flag | Toggled `0 ↔ 1` in lockstep with 99. | Medium |
@@ -200,6 +201,17 @@ the middle.
 This is one appliance, and PR #146 cites Atlantic's own capability list, so it
 may simply be that the numbering differs across families. Worth checking against
 a second ACI HYB before either naming is treated as settled.
+
+## 3d. Two presentation details worth keeping
+
+- Capabilities that hold "nothing scheduled" report `0`, not an absent value.
+  Sensors built on them return `None` so Home Assistant shows its own localised
+  "unknown"; returning a literal `"Undefined"` leaks an English word into every
+  other language.
+- The two away-mode `datetime` entities have to stay writable while absence is
+  off. Turning the absence switch on reads whatever range they hold and falls
+  back to "in one minute, for two days" when none is set, so making them
+  unavailable would remove the only way to choose the dates beforehand.
 
 ## 4. Platform notes
 

@@ -822,22 +822,29 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         capability["category"] = "diag"
 
     elif capabilityId == 105906:
-        capability["name"] = "Target 105906"
+        # The setpoint currently applied, expressed as a percentage of the
+        # 15-65 degree span: it moved to 100, 94 and 86 in lockstep with 312
+        # reading 65, 62 and 58, which is exactly (T - 15) / 50 * 100.
+        capability["name"] = "applied_target_temperature_percent"
         capability["type"] = "temperature_percent_adjustment_number"
-        capability["category"] = "sensor"
+        capability["category"] = "diag"
         capability["temperatureMin"] = 15.0
         capability["temperatureMax"] = 65.0
 
     elif capabilityId == 105907:
-        capability["name"] = "Target 105907"
+        # Same percentage scale, tracking capability 22 instead.
+        capability["name"] = "target_temperature_dhw_percent"
         capability["type"] = "temperature_percent_adjustment_number"
-        capability["category"] = "sensor"
+        capability["category"] = "diag"
         capability["temperatureMin"] = 15.0
         capability["temperatureMax"] = 65.0
 
-    # For test
     elif capabilityId == 312:
-        capability["name"] = "Temp_" + str(capabilityId)
+        # The setpoint the appliance is applying right now, which follows the
+        # active mode rather than a stored preference: it went to 65 under
+        # boost, back to 50 in eco+, and to the value held by the current day of
+        # the program in prog mode, across five observed mode changes.
+        capability["name"] = "applied_target_temperature"
         capability["type"] = "temperature_adjustment_number"
         capability["category"] = "sensor"
 

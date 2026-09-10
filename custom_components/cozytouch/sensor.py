@@ -558,7 +558,9 @@ class CozytouchAwayModeTimestampSensor(CozytouchSensor):
 
                     return ts.strftime("%H:%M %d/%m/%Y")
 
-                return "Undefined"
+                # No absence booked: leave it unknown rather than showing an
+                # untranslated "Undefined".
+                return None
 
         return None
 
@@ -598,9 +600,11 @@ class CozytouchTimestampSensor(CozytouchSensor):
         except ValueError:
             return None
 
-        # The device reports 0 when there is nothing scheduled.
+        # The device reports 0 when there is nothing scheduled. Returning None
+        # lets Home Assistant show its own localised "unknown" rather than an
+        # English word leaking into every other language.
         if timestamp == 0:
-            return "Undefined"
+            return None
 
         # The appliance encodes its own local wall-clock time as a naive epoch:
         # a boost started at 12:49:41 local for 1440 min reported an end time

@@ -139,6 +139,9 @@
             "away_mode_stop":   { "name": "Absence Fin" }
         },
         "number": {
+            "applied_target_temperature":            { "name": "Consigne appliquée" },
+            "applied_target_temperature_percent":    { "name": "Consigne appliquée (%)" },
+            "target_temperature_dhw_percent":        { "name": "Consigne DHW (%)" },
             "prog_temperature_01":       { "name": "Consigne Prog 01 (Lun)" },
             "prog_temperature_02":       { "name": "Consigne Prog 02 (Mar)" },
             "prog_temperature_03":       { "name": "Consigne Prog 03 (Mer)" },
