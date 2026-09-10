@@ -961,6 +961,11 @@ class CozytouchConsumptionSensor(CozytouchSensor):
         self._attr_device_class = device_class
         self._attr_native_unit_of_measurement = native_unit_of_measurement
 
+        # These are daily buckets: they only grow through the day and start
+        # again from a small value at midnight, which is what TOTAL_INCREASING
+        # describes. It is also what lets the energy dashboard accept them.
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+
     @property
     def native_unit_of_measurement(self):
         """Unit of the sensor, taken from the API for monetary values."""

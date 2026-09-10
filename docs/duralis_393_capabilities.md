@@ -231,6 +231,11 @@ and it needs a second unit before either reading is treated as settled.
 - **Capability 233 (`boost_remaining_time`) is absent on this device.** Only 232
   (total time) exists, so the boost countdown has to be derived from 105122
   (boost end timestamp) instead — this is what the `boost_end_time` sensor does.
+- The daily consumption sensors are declared `total_increasing`. They only
+  grow through the day and start again from a small value at midnight, which is
+  what that state class describes, and it is also what lets the energy
+  dashboard accept them.
+
 - **Consumption history comes from its own endpoint**, not from capabilities:
   `GET /magellan/setups/<id>/consumptions?periodicity=daily|monthly|yearly`.
   Each series carries a `type`/`unit` pair and a list of periods:
