@@ -213,6 +213,19 @@ a second ACI HYB before either naming is treated as settled.
   back to "in one minute, for two days" when none is set, so making them
   unavailable would remove the only way to choose the dates beforehand.
 
+## 3e. A second reading contradicted in the field: capability 218
+
+Upstream PR #155 maps 218 as `wifi_connected`. On this appliance it reads `0`
+in every capture, half an hour apart, while the device is plainly connected:
+the signal strength in 179 reads -37 dBm, every cloud request for its
+capabilities succeeds, and the integration's own connectivity sensor is on.
+An entity that announces "Wifi connected: off" on a device that is answering
+over wifi is worse than no entity at all.
+
+What 218 actually is stays unknown, so it is not renamed here: like the tank
+numbering above, this is one appliance against a mapping someone else derived,
+and it needs a second unit before either reading is treated as settled.
+
 ## 4. Platform notes
 
 - **Capability 233 (`boost_remaining_time`) is absent on this device.** Only 232
