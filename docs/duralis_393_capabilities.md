@@ -63,6 +63,31 @@ What is still unidentified is the **first element of each pair** in 237–243
 (always `0` so far) and why that block holds four pairs where the time block
 holds three.
 
+### Writing the program
+
+Both blocks are written by replacing the whole array, exactly as the app does:
+
+```
+{"deviceId": <id>, "capabilityId": 237, "value": "[[0,58],[0,0],[0,0],[0,0]]"}
+{"deviceId": <id>, "capabilityId": 245, "value": "[[0,450],[1395,1440],[0,0]]"}
+```
+
+Because every day has its own capability, writing one day cannot disturb the
+others.
+
+The setpoints are exposed as writable numbers, one per day. They rewrite the
+first pair and carry the remaining pairs over untouched, so the shape sent back
+is byte for byte the one the app sends. Bounds come from 253/252 (50–65 °C).
+Note that the app itself only offers its percentage scale in steps of about
+4 °C; whether the appliance accepts arbitrary values in between has not been
+tested.
+
+The **time ranges are left read-only** for now. Their format is understood —
+pairs of minutes since midnight, up to three slots per day — but exposing them
+would mean either twenty-eight time entities or a service, and this integration
+declares no services at all today. Documented here so it can be added
+deliberately rather than as a side effect.
+
 ---
 
 ## 2. Confirmed by correlation

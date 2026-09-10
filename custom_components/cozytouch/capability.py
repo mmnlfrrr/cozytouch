@@ -530,9 +530,11 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         # the setpoint in degrees: entering prog mode makes the effective
         # setpoint (312) take exactly the value held by the current day.
         capability["name"] = "prog_temperature_%02d" % (capabilityId - 236)
-        capability["type"] = "progtemperature"
+        capability["type"] = "prog_temperature_number"
         capability["category"] = "diag"
         capability["icon"] = "mdi:thermometer-water"
+        capability["lowestValueCapabilityId"] = 253
+        capability["highestValueCapabilityId"] = 252
 
     elif capabilityId == 245:
         capability["name"] = "prog_01"

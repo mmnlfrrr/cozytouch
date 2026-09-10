@@ -1,6 +1,7 @@
 """Number entities Atlantic Cozytouch integration."""
 from __future__ import annotations
 
+import json
 import logging
 
 from homeassistant.components.number import NumberDeviceClass, NumberEntity
@@ -49,6 +50,15 @@ async def async_setup_entry(
         elif capability["type"] == "temperature_percent_adjustment_number":
             numbers.append(
                 TemperaturePercentAdjustmentNumber(
+                    coordinator=hub,
+                    capability=capability,
+                    config_title=config_entry.title,
+                    config_uniq_id=config_entry.entry_id,
+                )
+            )
+        elif capability["type"] == "prog_temperature_number":
+            numbers.append(
+                ProgTemperatureNumber(
                     coordinator=hub,
                     capability=capability,
                     config_title=config_entry.title,
@@ -375,3 +385,110 @@ class MinutesAdjustmentNumber(NumberEntity, CozytouchSensor):
         )
 
         await self.coordinator.async_request_refresh()
+
+
+class ProgTemperatureNumber(NumberEntity, CozytouchSensor):
+    """One day of the programmed domestic hot water temperature.
+
+    The capability holds a list of pairs, of which the appliance only fills the
+    first one in the field. That first setpoint is what this entity reads and
+    writes; the remaining pairs are carried over untouched so that nothing the
+    appliance may be keeping there is lost.
+    """
+
+    def __init__(
+        self,
+        coordinator: Hub,
+        capability,
+        config_title: str,
+        config_uniq_id: str,
+        name: str | None = None,
+        icon: str | None = None,
+    ) -> None:
+        """Initialize a Number entity."""
+        capabilityId = capability["capabilityId"]
+        super().__init__(
+            coordinator=coordinator,
+            capability=capability,
+            config_title=config_title,
+            config_uniq_id=config_uniq_id,
+            attr_uniq_id=f"{DOMAIN}_{config_uniq_id}_number_{str(capabilityId)}",
+            name=name,
+            icon=icon,
+        )
+        self._attr_device_class = NumberDeviceClass.TEMPERATURE
+        self._attr_mode = "auto"
+        self._attr_native_step = capability.get("step", 1)
+        self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+        self._attr_native_min_value = capability.get("lowest_value", 50)
+        self._attr_native_max_value = capability.get("highest_value", 65)
+        self._native_value = None
+
+    def _get_prog(self) -> list | None:
+        """Read the capability as a list of pairs."""
+        value = self.coordinator.get_capability_value(
+            self._capability["capabilityId"]
+        )
+        if value is None:
+            return None
+
+        try:
+            prog = json.loads(value)
+        except ValueError:
+            return None
+
+        if not isinstance(prog, list):
+            return None
+
+        return prog
+
+    @property
+    def native_value(self) -> float | None:
+        """Value of the sensor."""
+        return self._native_value
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Update the value of the sensor from the hub."""
+        for capabilityId, attribute in (
+            ("lowestValueCapabilityId", "_attr_native_min_value"),
+            ("highestValueCapabilityId", "_attr_native_max_value"),
+        ):
+            if capabilityId in self._capability:
+                bound = self.coordinator.get_capability_value(
+                    self._capability[capabilityId], None
+                )
+                if bound:
+                    setattr(self, attribute, float(bound))
+
+        prog = self._get_prog()
+        if prog and len(prog[0]) >= 2:
+            self._native_value = float(prog[0][1])
+        else:
+            self._native_value = None
+
+        self.async_write_ha_state()
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        prog = self._get_prog()
+        if not prog or len(prog[0]) < 2:
+            _LOGGER.warning(
+                "%s: cannot set %s, the capability does not hold a usable program",
+                self._config_title,
+                self._capability["name"],
+            )
+            return
+
+        new_value = min(
+            max(value, self._attr_native_min_value), self._attr_native_max_value
+        )
+
+        # Only the first setpoint changes; everything else is written back as it
+        # was read, so the other days and slots are left alone.
+        prog[0][1] = int(new_value)
+
+        await self.coordinator.set_capability_value(
+            self._capability["capabilityId"],
+            json.dumps(prog, separators=(",", ":")),
+        )
