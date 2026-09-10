@@ -601,7 +601,7 @@ class Hub(DataUpdateCoordinator):
                                                             _LOGGER.info(
                                                                 "Execution_state waiting execution"
                                                             )
-                                                        if execution_state == 2:
+                                                        elif execution_state == 2:
                                                             _LOGGER.info(
                                                                 "Execution_state in progress"
                                                             )

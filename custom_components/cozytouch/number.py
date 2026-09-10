@@ -492,3 +492,5 @@ class ProgTemperatureNumber(NumberEntity, CozytouchSensor):
             self._capability["capabilityId"],
             json.dumps(prog, separators=(",", ":")),
         )
+
+        await self.coordinator.async_request_refresh()
