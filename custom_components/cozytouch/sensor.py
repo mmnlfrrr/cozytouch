@@ -392,7 +392,12 @@ class CozytouchSensor(SensorEntity, CoordinatorEntity):
         self._config_uniq_id = config_uniq_id
         self._last_value: str | None = None
         self._device_uniq_id = config_uniq_id
-        self._attr_name = name
+        # Deliberately never assign _attr_name here. Entity._name_internal
+        # returns it as soon as the attribute exists, so setting it shadows the
+        # translation key built below: None would declare the entity to *be* the
+        # device and collapse every entity to the device name, while the string
+        # callers pass is a translation key such as "away_mode_start", which
+        # would then be shown raw instead of its translated label.
 
         if value_type:
             self._value_type = value_type
@@ -473,7 +478,7 @@ class CozytouchSensor(SensorEntity, CoordinatorEntity):
         """Update the value of the sensor from the hub."""
         # Get last seen value from controller
         value = self.get_value()
-        # _LOGGER.info("%s: update %s (%s)", self._config_title, self._attr_name, value)
+        # _LOGGER.info("%s: update %s (%s)", self._config_title, self.name, value)
 
         # Handle entity availability
         if value is None:
@@ -482,14 +487,14 @@ class CozytouchSensor(SensorEntity, CoordinatorEntity):
                     _LOGGER.debug(
                         "%s: marking the %s sensor as unavailable: Cozytouch connection lost",
                         self._config_title,
-                        self._attr_name,
+                        self.name,
                     )
                     self._attr_available = False
         elif not self._attr_available:
             _LOGGER.info(
                 "%s: marking the %s sensor as available now !",
                 self._config_title,
-                self._attr_name,
+                self.name,
             )
             self._attr_available = True
 
