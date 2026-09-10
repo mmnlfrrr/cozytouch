@@ -239,7 +239,8 @@ a second ACI HYB before either naming is treated as settled.
   `GET /magellan/gateways/<id>/consumptions`, which return `consumedQuantity`,
   `cost`, `currency`, `mode` and `date`. A `null` 269 therefore does **not** mean
   "no water data available": the water series above reported 109 litres for the
-  same day the capability read `null`.
+  same day the capability read `null`. Since it can only ever read unknown on
+  these models, the entity is not created while the capability is null.
 - Capability 258 reports `150`, matching the 150 L tank of this model.
 - Capability 271 reports `35` and the app shows "35 % of hot water available",
   confirming the existing `hot_water_available` percentage mapping.

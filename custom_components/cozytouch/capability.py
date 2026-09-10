@@ -613,6 +613,13 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         capability["icon"] = "mdi:water-thermometer"
 
     elif capabilityId == 269:
+        # Some models, the ACI HYB water heaters among them, carry this
+        # capability but never populate it: it stays null while the appliance
+        # does report water usage, through the consumptions endpoint. Skip it
+        # rather than leave an entity that can only ever read unknown.
+        if capabilityValue is None:
+            return {}
+
         capability["name"] = "water_consumption"
         capability["type"] = "water_consumption"
         capability["category"] = "sensor"
