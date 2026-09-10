@@ -518,6 +518,18 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         capability["category"] = "diagnostic"
         capability["icon"] = "mdi:clock-outline"
 
+    elif 237 <= capabilityId <= 243:
+        # Programmed domestic hot water temperature, one capability per day,
+        # Monday (237) to Sunday (243), mirroring the daily heating time ranges
+        # held by 245-251. The official app presents these on a "hot water
+        # quantity" percentage scale of its own, but the value on the wire is
+        # the setpoint in degrees: entering prog mode makes the effective
+        # setpoint (312) take exactly the value held by the current day.
+        capability["name"] = "prog_temperature_%02d" % (capabilityId - 236)
+        capability["type"] = "progtemperature"
+        capability["category"] = "diag"
+        capability["icon"] = "mdi:thermometer-water"
+
     elif capabilityId == 245:
         capability["name"] = "prog_01"
         capability["type"] = "progtime"

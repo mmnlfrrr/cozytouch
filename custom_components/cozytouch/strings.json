@@ -166,6 +166,13 @@
         "sensor": {
             "water_heater_power":       { "name": "Water Heater Power" },
             "boost_end_time":           { "name": "Boost End Time" },
+            "prog_temperature_01":       { "name": "Prog Temperature 01 (Mon)" },
+            "prog_temperature_02":       { "name": "Prog Temperature 02 (Tue)" },
+            "prog_temperature_03":       { "name": "Prog Temperature 03 (Wed)" },
+            "prog_temperature_04":       { "name": "Prog Temperature 04 (Thu)" },
+            "prog_temperature_05":       { "name": "Prog Temperature 05 (Fri)" },
+            "prog_temperature_06":       { "name": "Prog Temperature 06 (Sat)" },
+            "prog_temperature_07":       { "name": "Prog Temperature 07 (Sun)" },
             "wifi_connected":           { "name": "Wifi Connected" },
             "target_temperature_max":   { "name": "Target Temperature Max" },
             "target_temperature_min":   { "name": "Target Temperature Min" },

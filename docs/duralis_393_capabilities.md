@@ -30,21 +30,36 @@ These were written by the iOS app and the new value was observed in a later
 | 87 | Heating mode | Written with `0`, `4`, `3`, `4`, `3` in five separate actions; each value echoed back in capability 87. Matches the existing ACI HYB `HeatingModes` map (`0` = manual, `3` = eco+, `4` = prog). | High |
 | 165 | Boost on/off | Written `1` → 165 became `1`; written `0` → 165 became `0`. | High |
 | 232 | Boost duration, **minutes** | Written `1440` → 232 became `1440`; written `0` → 232 became `0`. Also reset to `0` by the device when the mode left boost. | High |
-| 230 | Writable `0`/`1` flag gating heating | Written `0` then `1`; both echoed. Setting `1` started heating (99 → `1`, 278 → `2100`). | High that it is writable; **medium** on the exact semantic (on/off vs. DHW enable) |
-| 237–243 | Weekly schedule, **one capability per weekday** | In a single 200 ms burst the app wrote `[[0,58],[0,0],[0,0],[0,0]]` to 237, 238, 239, 240, 241 and `[[0,62],[0,0],[0,0],[0,0]]` to 242, 243 — a 5 + 2 split, i.e. Mon–Fri / Sat–Sun. All seven echoed back. | High for the per-day grouping; **the meaning of each `[a,b]` pair is not established** |
+| 230 | Writable `0`/`1` flag gating heating | Written `0` then `1`; both echoed. Setting `1` started heating (99 → `1`, 278 → `2100`). | High that it is writable; **medium** on the exact semantic — see below |
+| 237–243 | Programmed DHW temperature, **one capability per day**, Monday (237) to Sunday (243) | In a single 200 ms burst the app wrote the same value to 237–241 and another to 242–243 — a 5 + 2 split. A later capture of the "hot water quantity" screen showed Mon–Fri on one value and Sat/Sun on a higher one, matching the capability values position by position. | High |
 
-### About 237–243
+### About 237–243 and 245–251
 
-Each value holds four `[a,b]` pairs. The 5 + 2 write grouping is solid evidence
-that 237 = Monday … 243 = Sunday, but the pair contents are *not* identified:
+The weekly program is split across two blocks of seven capabilities, both
+ordered Monday first, which is the order the integration already assumes for
+245–251 (`prog_01 (Mon)` … `prog_07 (Sun)`):
 
-- the second element moved `62 → 58` on weekdays and `65 → 62` at the weekend;
-- the same numbers (`62`, `65`, `58`) also occur as temperatures elsewhere in the
-  same session (caps 22, 231, 234, 312), so a time-slot reading and a
-  setpoint reading are both plausible.
+- **245–251 carry the times**, as pairs of minutes since midnight. The observed
+  `[[0,435],[1395,1440],[0,0]]` decodes to `00:00–07:15 / 23:15–24:00`, and the
+  app renders exactly those bars. A capture in which a single day's range was
+  moved wrote `435 → 450` to capability 245 alone and then back — 07:15 to 07:30
+  and back — which fixes both the unit and the per-day mapping.
+- **237–243 carry the setpoints**, in degrees. Entering prog mode makes the
+  effective setpoint (312) take exactly the value held by the *current* day:
+  observed twice on a Thursday, once at `62` and once at `58`, each time with
+  the weekday capabilities holding that value. Capability 105906 tracked it as
+  `86`, i.e. `(58 − 15) / 50 × 100`, confirming the degrees reading.
 
-Not enough to choose. This needs a capture where a single schedule slot is moved
-by a known amount, with the temperature left untouched.
+Note that the app does **not** display these degrees directly: its "hot water
+quantity" screen showed `80 %` for a stored `58` and `90 %` for a stored `62`,
+which is a different scale from the one capability 105906 uses. Two points fit
+`pct = 2.5 × T − 65`, but that is a fit through two values, not an established
+mapping — the integration exposes the degrees actually on the wire and leaves
+the app's presentation scale alone.
+
+What is still unidentified is the **first element of each pair** in 237–243
+(always `0` so far) and why that block holds four pairs where the time block
+holds three.
 
 ---
 
@@ -87,9 +102,19 @@ example value only, deliberately **without** any proposed meaning:
 | 105011 / 105012 | assorted |
 
 Capability **150** contains ten sub-arrays, not seven, so despite its shape it is
-**not** a plain weekly schedule. The per-day schedule lives in 237–243 (above).
+**not** a plain weekly schedule. The weekly program lives in 245–251 (times)
+and 237–243 (setpoints), both described above.
 
----
+## 3b. Open question on capability 230
+
+The official app also offers a two-way choice between "heating allowed
+permanently" and "heating allowed during the custom ranges", which is a 0/1
+setting too, so 230 could be that selector rather than a plain on/off. The
+evidence does not settle it: writing `1` started heating at a time of day that
+falls *outside* the configured ranges, which argues against the selector
+reading, but the appliance was in eco+ at that moment and the ranges may only
+gate prog mode. Toggling that selector in the app while watching 230 would
+decide it.
 
 ## 4. Platform notes
 
@@ -103,5 +128,7 @@ Capability **150** contains ten sub-arrays, not seven, so despite its shape it i
   `cost`, `currency`, `mode` and `date`. A `null` 269 therefore does **not** mean
   "no water data available".
 - Capability 258 reports `150`, matching the 150 L tank of this model.
+- Capability 271 reports `35` and the app shows "35 % of hot water available",
+  confirming the existing `hot_water_available` percentage mapping.
 - Temperature bounds are reported consistently: 253/105301 = `50`,
   252/105300/105304/231/234 = `65`.

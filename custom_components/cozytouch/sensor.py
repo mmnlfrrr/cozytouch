@@ -263,6 +263,16 @@ async def async_setup_entry(
                     coordinator=hub,
                 )
             )
+        elif capability["type"] == "progtemperature":
+            sensors.append(
+                CozytouchProgTemperatureSensor(
+                    capability=capability,
+                    config_title=config_entry.title,
+                    config_uniq_id=config_entry.entry_id,
+                    coordinator=hub,
+                )
+            )
+
         elif capability["type"] == "progtime":
             sensors.append(
                 CozytouchProgTimeSensor(
@@ -837,3 +847,48 @@ class CozytouchProgTimeSensor(CozytouchSensor):
             return strValue
 
         return None
+
+
+class CozytouchProgTemperatureSensor(CozytouchSensor):
+    """Class for a daily programmed temperature sensor."""
+
+    def __init__(
+        self,
+        capability,
+        config_title: str,
+        config_uniq_id: str,
+        coordinator: Hub,
+        name: str | None = None,
+        icon: str | None = None,
+    ) -> None:
+        """Initialize a prog temperature Sensor."""
+        super().__init__(
+            capability=capability,
+            config_title=config_title,
+            config_uniq_id=config_uniq_id,
+            coordinator=coordinator,
+            name=name,
+            icon=icon,
+        )
+
+    def get_value(self) -> str:
+        """Retrieve value from hub."""
+        value = self.coordinator.get_capability_value(self._capability["capabilityId"])
+        if value is None:
+            return None
+
+        try:
+            progList = json.loads(value)
+        except ValueError:
+            return None
+
+        # Same shape as the daily time ranges: a list of pairs, of which only
+        # the used ones carry a non-zero setpoint.
+        strValue = ""
+        for prog in progList:
+            if len(prog) >= 2 and prog[1] != 0:
+                if strValue != "":
+                    strValue += " / "
+                strValue += "%g" % prog[1]
+
+        return strValue
