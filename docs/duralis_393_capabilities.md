@@ -135,12 +135,28 @@ point the setting had just been moved to permanent.
 - **Capability 233 (`boost_remaining_time`) is absent on this device.** Only 232
   (total time) exists, so the boost countdown has to be derived from 105122
   (boost end timestamp) instead — this is what the `boost_end_time` sensor does.
+- **Consumption history comes from its own endpoint**, not from capabilities:
+  `GET /magellan/setups/<id>/consumptions?periodicity=daily|monthly|yearly`.
+  Each series carries a `type`/`unit` pair and a list of periods:
+
+  | type | unit | Meaning | mode |
+  |---:|---:|---|---|
+  | 1 | 1 | Electricity, kWh | `1` = peak hours, `2` = off-peak hours |
+  | 4 | 2 | Water, litres | `0`, and always with a cost of `0` |
+
+  The tariff modes were read off the costs and then confirmed against the app's
+  own tariff screen: mode 1 divides out to `36.16 / 167.47 = 0.2159` per kWh and
+  the app shows peak hours at `0.2159 €`, mode 2 gives `74.06 / 515.36 = 0.1437`
+  against `0.1438 €` for off-peak. That screen also settles `currency: 101`,
+  the only code seen, as euros.
+
 - **Capability 269 (`water_consumption`) is `null`** on this device, even though
   the iOS app displays water usage. The app reads it from
   `GET /magellan/setups/<id>/consumptions` and
   `GET /magellan/gateways/<id>/consumptions`, which return `consumedQuantity`,
   `cost`, `currency`, `mode` and `date`. A `null` 269 therefore does **not** mean
-  "no water data available".
+  "no water data available": the water series above reported 109 litres for the
+  same day the capability read `null`.
 - Capability 258 reports `150`, matching the 150 L tank of this model.
 - Capability 271 reports `35` and the app shows "35 % of hot water available",
   confirming the existing `hot_water_available` percentage mapping.

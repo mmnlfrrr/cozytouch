@@ -28,6 +28,15 @@ from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .consumption import (
+    CONSUMPTION_MODE_OFFPEAK,
+    CONSUMPTION_MODE_PEAK,
+    CONSUMPTION_TYPE_ELECTRICITY,
+    CONSUMPTION_TYPE_WATER,
+    get_series_currency,
+    get_field,
+    sum_field,
+)
 from .const import DOMAIN, CozytouchCapabilityVariableType
 from .hub import Hub
 
@@ -291,6 +300,76 @@ async def async_setup_entry(
                     coordinator=hub,
                 )
             )
+
+    sensors.extend(
+        CozytouchConsumptionSensor(
+            config_title=config_entry.title,
+            config_uniq_id=config_entry.entry_id,
+            coordinator=hub,
+            name=name,
+            consumption_type=consumption_type,
+            mode=mode,
+            field=field,
+            device_class=device_class,
+            native_unit_of_measurement=unit,
+            icon=icon,
+        )
+        for (
+            name,
+            consumption_type,
+            mode,
+            field,
+            device_class,
+            unit,
+            icon,
+        ) in (
+            (
+                "energy_today",
+                CONSUMPTION_TYPE_ELECTRICITY,
+                None,
+                "quantity",
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.KILO_WATT_HOUR,
+                None,
+            ),
+            (
+                "energy_offpeak_today",
+                CONSUMPTION_TYPE_ELECTRICITY,
+                CONSUMPTION_MODE_OFFPEAK,
+                "quantity",
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.KILO_WATT_HOUR,
+                "mdi:weather-night",
+            ),
+            (
+                "energy_peak_today",
+                CONSUMPTION_TYPE_ELECTRICITY,
+                CONSUMPTION_MODE_PEAK,
+                "quantity",
+                SensorDeviceClass.ENERGY,
+                UnitOfEnergy.KILO_WATT_HOUR,
+                "mdi:weather-sunny",
+            ),
+            (
+                "water_today",
+                CONSUMPTION_TYPE_WATER,
+                None,
+                "quantity",
+                SensorDeviceClass.WATER,
+                UnitOfVolume.LITERS,
+                "mdi:water",
+            ),
+            (
+                "energy_cost_today",
+                CONSUMPTION_TYPE_ELECTRICITY,
+                None,
+                "cost",
+                SensorDeviceClass.MONETARY,
+                None,
+                "mdi:cash",
+            ),
+        )
+    )
 
     # Add the entities to HA
     if len(sensors) > 0:
@@ -892,3 +971,56 @@ class CozytouchProgTemperatureSensor(CozytouchSensor):
                 strValue += "%g" % prog[1]
 
         return strValue
+
+
+class CozytouchConsumptionSensor(CozytouchSensor):
+    """Class for a sensor fed by the consumption endpoint rather than a capability."""
+
+    def __init__(
+        self,
+        config_title: str,
+        config_uniq_id: str,
+        coordinator: Hub,
+        name: str,
+        consumption_type: int,
+        mode: int | None,
+        field: str,
+        device_class=None,
+        native_unit_of_measurement=None,
+        icon: str | None = None,
+    ) -> None:
+        """Initialize a consumption Sensor."""
+        super().__init__(
+            capability={
+                "capabilityId": "consumption_" + name,
+                "name": name,
+                "category": "sensor",
+            },
+            config_title=config_title,
+            config_uniq_id=config_uniq_id,
+            coordinator=coordinator,
+            icon=icon,
+        )
+        self._consumption_type = consumption_type
+        self._mode = mode
+        self._field = field
+        self._attr_device_class = device_class
+        self._attr_native_unit_of_measurement = native_unit_of_measurement
+
+    @property
+    def native_unit_of_measurement(self):
+        """Unit of the sensor, taken from the API for monetary values."""
+        if self._field == "cost":
+            return get_series_currency(
+                self.coordinator.get_consumptions(), self._consumption_type
+            )
+
+        return self._attr_native_unit_of_measurement
+
+    def get_value(self):
+        """Retrieve value from hub."""
+        consumptions = self.coordinator.get_consumptions()
+        if self._mode is None:
+            return sum_field(consumptions, self._consumption_type, self._field)
+
+        return get_field(consumptions, self._consumption_type, self._mode, self._field)

@@ -166,6 +166,11 @@
         "sensor": {
             "custom_heating_ranges":    { "name": "Custom Heating Ranges" },
             "boost_end_time":           { "name": "Boost End Time" },
+            "energy_today":                  { "name": "Energy Today" },
+            "energy_offpeak_today":          { "name": "Energy Off-Peak Today" },
+            "energy_peak_today":             { "name": "Energy Peak Today" },
+            "water_today":                   { "name": "Water Today" },
+            "energy_cost_today":             { "name": "Energy Cost Today" },
             "prog_temperature_01":       { "name": "Prog Temperature 01 (Mon)" },
             "prog_temperature_02":       { "name": "Prog Temperature 02 (Tue)" },
             "prog_temperature_03":       { "name": "Prog Temperature 03 (Wed)" },

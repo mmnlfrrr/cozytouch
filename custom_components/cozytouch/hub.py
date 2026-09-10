@@ -17,6 +17,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
 from .capability import get_capability_infos
+from .consumption import parse_latest_consumptions
 from .const import COZYTOUCH_ATLANTIC_API, COZYTOUCH_CLIENT_ID
 from .model import get_model_infos
 
@@ -25,6 +26,10 @@ _LOGGER = logging.getLogger(__name__)
 # Timeout for all HTTP requests. Without this, a hung Atlantic API server
 # will stall _async_update_data forever, blocking all subsequent polls.
 REQUEST_TIMEOUT = ClientTimeout(total=30)
+
+# Consumption history is aggregated daily, so it does not need the capability
+# poll rate. One request every 15 minutes feeds every consumption sensor.
+CONSUMPTIONS_UPDATE_INTERVAL = 900
 
 
 class Hub(DataUpdateCoordinator):
@@ -65,6 +70,8 @@ class Hub(DataUpdateCoordinator):
         self._create_unknown = False
         self._dump_json = False
         self._devices = []
+        self._consumptions = {}
+        self._consumptions_last_update = 0.0
 
         self.online = False
         self._token_expiry: float = 0  # Unix timestamp; 0 = unknown/expired
@@ -339,6 +346,9 @@ class Hub(DataUpdateCoordinator):
                         )
                         self.online = False
 
+                    if self.online:
+                        await self._async_update_consumptions(headers)
+
             except asyncio.TimeoutError:
                 _LOGGER.warning(
                     "Timeout fetching capabilities for device %d, forcing reconnect",
@@ -355,6 +365,58 @@ class Hub(DataUpdateCoordinator):
 
         else:
             await self.connect()
+
+    async def _async_update_consumptions(self, headers) -> None:
+        """Refresh the consumption history.
+
+        Daily totals move far more slowly than the capabilities, so this is
+        polled on its own longer interval to keep one cloud request serving
+        every consumption sensor.
+        """
+        setupId = self._setup.get("id")
+        if setupId is None:
+            return
+
+        now = datetime.now(UTC).timestamp()
+        if now - self._consumptions_last_update < CONSUMPTIONS_UPDATE_INTERVAL:
+            return
+
+        # Update the stamp first: a failing endpoint must not turn into one
+        # request per poll.
+        self._consumptions_last_update = now
+
+        try:
+            async with self._session.get(
+                COZYTOUCH_ATLANTIC_API
+                + "/magellan/setups/"
+                + str(setupId)
+                + "/consumptions?periodicity=daily",
+                headers=headers,
+                timeout=REQUEST_TIMEOUT,
+            ) as response:
+                if response.status != 200:
+                    _LOGGER.debug(
+                        "Unexpected status %d from consumptions endpoint",
+                        response.status,
+                    )
+                    return
+
+                try:
+                    json_data = await response.json()
+                except ContentTypeError:
+                    _LOGGER.debug("Non-JSON response from consumptions endpoint")
+                    return
+
+                self._consumptions = parse_latest_consumptions(json_data)
+
+        except asyncio.TimeoutError:
+            _LOGGER.debug("Timeout fetching consumptions for setup %s", setupId)
+        except ClientError as err:
+            _LOGGER.debug("Network error fetching consumptions: %s", err)
+
+    def get_consumptions(self) -> dict:
+        """Get the latest parsed consumption periods."""
+        return self._consumptions
 
     def devices(self):
         """Get devices list."""
