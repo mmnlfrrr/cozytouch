@@ -235,6 +235,16 @@ async def async_setup_entry(
                 )
             )
 
+        elif capability["type"] == "timestamp":
+            sensors.append(
+                CozytouchTimestampSensor(
+                    capability=capability,
+                    config_title=config_entry.title,
+                    config_uniq_id=config_entry.entry_id,
+                    coordinator=hub,
+                )
+            )
+
         elif capability["type"] == "timezone":
             sensors.append(
                 CozytouchTimezoneSensor(
@@ -467,6 +477,53 @@ class CozytouchAwayModeTimestampSensor(CozytouchSensor):
                 return "Undefined"
 
         return None
+
+
+
+class CozytouchTimestampSensor(CozytouchSensor):
+    """Class for a sensor holding a single unix timestamp."""
+
+    def __init__(
+        self,
+        capability,
+        config_title: str,
+        config_uniq_id: str,
+        coordinator: Hub,
+        name: str | None = None,
+        icon: str | None = None,
+    ) -> None:
+        """Initialize a timestamp Sensor."""
+        super().__init__(
+            capability=capability,
+            config_title=config_title,
+            config_uniq_id=config_uniq_id,
+            coordinator=coordinator,
+            name=name,
+            icon=icon,
+            value_type=CozytouchCapabilityVariableType.STRING,
+        )
+
+    def get_value(self) -> str:
+        """Retrieve value from hub."""
+        value = self.coordinator.get_capability_value(self._capability["capabilityId"])
+        if value is None:
+            return None
+
+        try:
+            timestamp = int(float(value))
+        except ValueError:
+            return None
+
+        # The device reports 0 when there is nothing scheduled.
+        if timestamp == 0:
+            return "Undefined"
+
+        # The appliance encodes its own local wall-clock time as a naive epoch:
+        # a boost started at 12:49:41 local for 1440 min reported an end time
+        # that reads back as 12:49:43 when decoded as UTC. So it must be decoded
+        # as UTC and not shifted again, otherwise the offset is counted twice.
+        ts = datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
+        return ts.strftime("%H:%M %d/%m/%Y")
 
 
 class CozytouchBinarySensor(BinarySensorEntity, CozytouchSensor):

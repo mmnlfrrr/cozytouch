@@ -490,6 +490,15 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         else:
             capability["capabilityDuplicate"] = 222
 
+    elif capabilityId == 230:
+        # Writable 0/1 flag that enables the appliance: observed on a Duralis
+        # ACI HYB (modelId 393), writing "1" immediately started the resistance
+        # (capability 99 -> 1) and the power draw (capability 278 -> 2100 W).
+        capability["name"] = "water_heater_power"
+        capability["type"] = "switch"
+        capability["category"] = "sensor"
+        capability["icon"] = "mdi:power"
+
     elif capabilityId == 231:
         capability["name"] = "target_temperature"
         capability["type"] = "temperature_adjustment_number"
@@ -774,6 +783,15 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         capability["lowest_value"] = 5
         capability["highest_value"] = 60
         capability["step"] = 5
+
+    elif capabilityId == 105122:
+        # Unix timestamp at which the running boost ends. ACI HYB water heaters
+        # do not expose capability 233 (boost remaining time), they report the
+        # end time here instead, and reset it to 0 once the boost is over.
+        capability["name"] = "boost_end_time"
+        capability["type"] = "timestamp"
+        capability["category"] = "sensor"
+        capability["icon"] = "mdi:clock-end"
 
     elif capabilityId == 105300:
         capability["name"] = "water_temperature_limit"

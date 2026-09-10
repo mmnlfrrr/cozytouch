@@ -164,6 +164,8 @@
             }
         },
         "sensor": {
+            "water_heater_power":       { "name": "Water Heater Power" },
+            "boost_end_time":           { "name": "Boost End Time" },
             "air_conditioner":          { "name": "Air Conditioner" },
             "away_mode":                { "name": "Away Mode" },
             "away_mode_start":          { "name": "Away Mode Start" },
@@ -277,7 +279,8 @@
             "presence_mode":      { "name": "Presence Mode" },
             "prog_mode":          { "name": "Prog Mode" },
             "quiet_mode":         { "name": "Quiet Mode" },
-            "swing_mode":         { "name": "Swing Mode" }
+            "swing_mode":         { "name": "Swing Mode" },
+            "water_heater_power": { "name": "Water Heater Power" }
         }
     }
 }

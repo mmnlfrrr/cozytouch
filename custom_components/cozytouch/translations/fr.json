@@ -173,6 +173,8 @@
             "water_temperature_limit":  { "name": "Limite température eau" },
             "max_target_temperature_derogation": { "name": "Consigne max dérogation" },
             "absence_dhw_temperature":  { "name": "Température absence ECS" },
+            "water_heater_power":       { "name": "Alimentation Chauffe-eau" },
+            "boost_end_time":           { "name": "Fin du Boost" },
             "air_conditioner":          { "name": "Climatisation" },
             "away_mode":                { "name": "Absence" },
             "away_mode_start":          { "name": "Absence Début" },
@@ -286,7 +288,8 @@
             "presence_mode":      { "name": "Mode Présence" },
             "prog_mode":          { "name": "Mode Prog" },
             "quiet_mode":         { "name": "Mode Silence" },
-            "swing_mode":         { "name": "Mode Oscillation" }
+            "swing_mode":         { "name": "Mode Oscillation" },
+            "water_heater_power": { "name": "Alimentation Chauffe-eau" }
         }
     }
 }

@@ -54,7 +54,7 @@ No direct write, but the value moved in a reproducible, explainable way.
 
 | ID | Meaning | Evidence | Confidence |
 |---:|---|---|---|
-| 105122 | Boost end time, **unix timestamp** | Set to a timestamp exactly equal to the boost write time + 1440 min (the duration written to 232), to the second. Reset to `0` when the mode left boost. | High |
+| 105122 | Boost end time, **naive local-time epoch** | Set to a value exactly equal to the boost write time + 1440 min (the duration written to 232), to the second. Reset to `0` when the mode left boost. Decoded as UTC it yields the appliance's *local* wall-clock time (`12:49:43`, for a boost started at `12:49:41` local), so it must not be shifted by the timezone capability 315 as well. | High |
 | 105906 / 105907 | Setpoint expressed as **% of the 15–65 °C range** | `65 °C → 100`, `62 °C → 94`, `50 °C → 70`, i.e. exactly `(T − 15) / 50 × 100`. Matches the `temperatureMin`/`temperatureMax` already declared for these ids. | High |
 | 99 | Resistance / heating active | `0 → 1` when heating began, `→ 0` once the device settled in prog. | High |
 | 278 | Electrical power drawn (W) | Toggled `0 ↔ 2100` in lockstep with 99, on a 2200 W appliance. | Medium |
@@ -95,7 +95,7 @@ Capability **150** contains ten sub-arrays, not seven, so despite its shape it i
 
 - **Capability 233 (`boost_remaining_time`) is absent on this device.** Only 232
   (total time) exists, so the boost countdown has to be derived from 105122
-  (boost end timestamp) instead.
+  (boost end timestamp) instead — this is what the `boost_end_time` sensor does.
 - **Capability 269 (`water_consumption`) is `null`** on this device, even though
   the iOS app displays water usage. The app reads it from
   `GET /magellan/setups/<id>/consumptions` and
