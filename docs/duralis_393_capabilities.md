@@ -30,7 +30,7 @@ These were written by the iOS app and the new value was observed in a later
 | 87 | Heating mode | Written with `0`, `4`, `3`, `4`, `3` in five separate actions; each value echoed back in capability 87. Matches the existing ACI HYB `HeatingModes` map (`0` = manual, `3` = eco+, `4` = prog). | High |
 | 165 | Boost on/off | Written `1` → 165 became `1`; written `0` → 165 became `0`. | High |
 | 232 | Boost duration, **minutes** | Written `1440` → 232 became `1440`; written `0` → 232 became `0`. Also reset to `0` by the device when the mode left boost. | High |
-| 230 | Writable `0`/`1` flag gating heating | Written `0` then `1`; both echoed. Setting `1` started heating (99 → `1`, 278 → `2100`). | High that it is writable; **medium** on the exact semantic — see below |
+| 230 | Selects **permanent heating (`0`)** vs **heating restricted to the daily time ranges (`1`)** | Toggled from the app outside the configured ranges: `-> 0` started the resistance within the minute (278 -> `2100`, pump on) and `-> 1` stopped it (278 -> `0`, pump off). Matches a screenshot showing "custom ranges" selected while 230 sat at `1`. | High |
 | 237–243 | Programmed DHW temperature, **one capability per day**, Monday (237) to Sunday (243) | In a single 200 ms burst the app wrote the same value to 237–241 and another to 242–243 — a 5 + 2 split. A later capture of the "hot water quantity" screen showed Mon–Fri on one value and Sat/Sun on a higher one, matching the capability values position by position. | High |
 
 ### About 237–243 and 245–251
@@ -107,27 +107,28 @@ Capability **150** contains ten sub-arrays, not seven, so despite its shape it i
 **not** a plain weekly schedule. The weekly program lives in 245–251 (times)
 and 237–243 (setpoints), both described above.
 
-## 3b. Open question on capability 230
+## 3b. How capability 230 was pinned down
 
-The official app also offers a two-way choice between "heating allowed
-permanently" and "heating allowed during the custom ranges", which is a 0/1
-setting too, so 230 looked like it could be that selector. It is not: with the
-time ranges applying in every mode, neither polarity survives.
+230 was first taken for a plain on/off flag, because writing `1` appeared to
+start heating. That was a polling artefact: the appliance reacts to the setting
+with a delay of a few seconds, so the heating that showed up alongside a `1`
+was in fact the effect of the `0` written ten seconds earlier.
 
-- Read as `1` = "custom ranges": writing `1` started heating one second later,
-  at a time of day falling outside the configured ranges, which the ranges
-  should have forbidden.
-- Read as `1` = "permanently": 230 was observed to sit at `1` continuously for
-  the best part of two hours while the app showed "custom ranges" selected.
+Toggling the setting deliberately, outside the configured ranges, separated the
+two cleanly:
 
-So 230 is a writable flag that commands heating, distinct from that selector,
-and the selector itself lives in a capability not yet identified.
+```
+13:27:08   230 -> 0    278 -> 2100   281 -> 1   339 -> 0   pump on
+13:30:08   230 -> 1    278 -> 0      281 -> 0   339 -> 1   pump off
+```
 
-One thing does remain unexplained on the appliance side rather than the
-protocol side: heating was seen running twice in eco+ well outside the
-configured ranges, which the ranges were expected to prevent. Either those runs
-happened while the selector was on "permanently", or the ranges do not gate
-every kind of heating cycle.
+With ranges of `00:00–07:15` and `23:15–24:00`, both timestamps fall outside
+them, so `0` lifting the restriction and `1` reinstating it is the only reading
+that fits — and it agrees with a screenshot taken earlier showing "custom
+ranges" selected while 230 read `1`.
+
+This also accounts for heating seen running in eco+ outside the ranges: at that
+point the setting had just been moved to permanent.
 
 ## 4. Platform notes
 

@@ -173,7 +173,7 @@
             "water_temperature_limit":  { "name": "Limite température eau" },
             "max_target_temperature_derogation": { "name": "Consigne max dérogation" },
             "absence_dhw_temperature":  { "name": "Température absence ECS" },
-            "water_heater_power":       { "name": "Alimentation Chauffe-eau" },
+            "custom_heating_ranges":    { "name": "Plages de chauffe personnalisées" },
             "boost_end_time":           { "name": "Fin du Boost" },
             "prog_temperature_01":       { "name": "Consigne Prog 01 (Lun)" },
             "prog_temperature_02":       { "name": "Consigne Prog 02 (Mar)" },
@@ -296,7 +296,7 @@
             "prog_mode":          { "name": "Mode Prog" },
             "quiet_mode":         { "name": "Mode Silence" },
             "swing_mode":         { "name": "Mode Oscillation" },
-            "water_heater_power": { "name": "Alimentation Chauffe-eau" }
+            "custom_heating_ranges": { "name": "Plages de chauffe personnalisées" }
         }
     }
 }

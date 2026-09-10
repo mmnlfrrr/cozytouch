@@ -164,7 +164,7 @@
             }
         },
         "sensor": {
-            "water_heater_power":       { "name": "Water Heater Power" },
+            "custom_heating_ranges":    { "name": "Custom Heating Ranges" },
             "boost_end_time":           { "name": "Boost End Time" },
             "prog_temperature_01":       { "name": "Prog Temperature 01 (Mon)" },
             "prog_temperature_02":       { "name": "Prog Temperature 02 (Tue)" },
@@ -296,7 +296,7 @@
             "prog_mode":          { "name": "Prog Mode" },
             "quiet_mode":         { "name": "Quiet Mode" },
             "swing_mode":         { "name": "Swing Mode" },
-            "water_heater_power": { "name": "Water Heater Power" }
+            "custom_heating_ranges": { "name": "Custom Heating Ranges" }
         }
     }
 }

@@ -491,13 +491,17 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
             capability["capabilityDuplicate"] = 222
 
     elif capabilityId == 230:
-        # Writable 0/1 flag that enables the appliance: observed on a Duralis
-        # ACI HYB (modelId 393), writing "1" immediately started the resistance
-        # (capability 99 -> 1) and the power draw (capability 278 -> 2100 W).
-        capability["name"] = "water_heater_power"
+        # Selects whether heating is allowed permanently ("0") or restricted to
+        # the daily time ranges held by 245-251 ("1"). Confirmed on a Duralis
+        # ACI HYB by toggling the setting in the official app outside those
+        # ranges: switching to "0" started the resistance within the minute
+        # (278 -> 2100 W) and switching back to "1" stopped it (278 -> 0).
+        # The ranges gate every mode, unlike the daily setpoints in 237-243
+        # which only apply in prog mode.
+        capability["name"] = "custom_heating_ranges"
         capability["type"] = "switch"
         capability["category"] = "sensor"
-        capability["icon"] = "mdi:power"
+        capability["icon"] = "mdi:calendar-clock"
 
     elif capabilityId == 231:
         capability["name"] = "target_temperature"
