@@ -44,7 +44,9 @@ ordered Monday first, which is the order the integration already assumes for
   app renders exactly those bars. A capture in which a single day's range was
   moved wrote `435 → 450` to capability 245 alone and then back — 07:15 to 07:30
   and back — which fixes both the unit and the per-day mapping.
-- **237–243 carry the setpoints**, in degrees. Entering prog mode makes the
+- **237–243 carry the setpoints**, in degrees, and per the owner of the
+  appliance they apply **only in prog mode**, whereas the time ranges in
+  245–251 apply in every mode. Entering prog mode makes the
   effective setpoint (312) take exactly the value held by the *current* day:
   observed twice on a Thursday, once at `62` and once at `58`, each time with
   the weekday capabilities holding that value. Capability 105906 tracked it as
@@ -109,12 +111,23 @@ and 237–243 (setpoints), both described above.
 
 The official app also offers a two-way choice between "heating allowed
 permanently" and "heating allowed during the custom ranges", which is a 0/1
-setting too, so 230 could be that selector rather than a plain on/off. The
-evidence does not settle it: writing `1` started heating at a time of day that
-falls *outside* the configured ranges, which argues against the selector
-reading, but the appliance was in eco+ at that moment and the ranges may only
-gate prog mode. Toggling that selector in the app while watching 230 would
-decide it.
+setting too, so 230 looked like it could be that selector. It is not: with the
+time ranges applying in every mode, neither polarity survives.
+
+- Read as `1` = "custom ranges": writing `1` started heating one second later,
+  at a time of day falling outside the configured ranges, which the ranges
+  should have forbidden.
+- Read as `1` = "permanently": 230 was observed to sit at `1` continuously for
+  the best part of two hours while the app showed "custom ranges" selected.
+
+So 230 is a writable flag that commands heating, distinct from that selector,
+and the selector itself lives in a capability not yet identified.
+
+One thing does remain unexplained on the appliance side rather than the
+protocol side: heating was seen running twice in eco+ well outside the
+configured ranges, which the ranges were expected to prevent. Either those runs
+happened while the selector was on "permanently", or the ranges do not gate
+every kind of heating cycle.
 
 ## 4. Platform notes
 
