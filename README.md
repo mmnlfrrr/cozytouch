@@ -9,8 +9,13 @@ This has been tested using on :
   - `Takao M3` air conditionning
   - `Kelud 1750W` towel rack
   - `Sauter Asama Connecté II Ventilo 1750W` towel rack
+  - `Thermor Duralis Connect ACI HYB VM 150L 2200W` water heater
 
 A special mapping needs to be done for each model type, feel free to create an issue to help supporting your device.
+
+Capability notes gathered from a real ACI HYB water heater, including what is
+confirmed and what is still unidentified, are in
+[docs/duralis_393_capabilities.md](docs/duralis_393_capabilities.md).
 
 
 ## Installation

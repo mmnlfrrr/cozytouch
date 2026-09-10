@@ -128,6 +128,17 @@ example value only, deliberately **without** any proposed meaning:
 | 284–290, 307–311, 329–336, 340, 351, 381 | assorted |
 | 105011 / 105012 | assorted |
 
+One lead worth recording, and worth resisting: capability 168 reads `16141`
+while the consumptions endpoint reports `16148.84` litres of water for the year,
+which is tempting. It is not enough. Over a half hour in which water was clearly
+being drawn — the available V40 volume in 268 fell from 118 to 107 — capability
+168 did not move at all, which is the opposite of what a live water counter
+would do. Left unidentified.
+
+None of the other capabilities above changed during any of the captures, so
+identifying them needs either a much longer history or an action in the app
+known to touch them.
+
 Capability **150** contains ten sub-arrays, not seven, so despite its shape it is
 **not** a plain weekly schedule. The weekly program lives in 245–251 (times)
 and 237–243 (setpoints), both described above.
