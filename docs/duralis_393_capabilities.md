@@ -226,6 +226,42 @@ What 218 actually is stays unknown, so it is not renamed here: like the tank
 numbering above, this is one appliance against a mapping someone else derived,
 and it needs a second unit before either reading is treated as settled.
 
+## 3f. Capability names taken from the community list
+
+Upstream issue #86 carries a `capabilities.csv` of 151 id/name pairs
+contributed by a user. It is not an official document, so it was checked
+against this appliance before being used. Seven entries are corroborated by
+measurements made here:
+
+| Entry | Independent check |
+|---|---|
+| 330 `DHW_STEP_PROG_RANGE` = 15 | every programmed time on this device (0, 435, 450, 1395, 1440) is a multiple of 15 |
+| 244 `..._MAX_NUMBER_PROGRAMMING_RANGE_PER_DAY` = 3 | the daily time ranges in 245-251 hold exactly three slots |
+| 236 `..._MAX_NUMBER_MILESTONE_PER_DAY` = 1 | only the first setpoint slot of 237-243 is ever used |
+| 307 `..._MIN_HEATING_DURATION_PERIOD_FOR_ONE_DAY` = 480 | 480 min = 8 h, and the app states off-peak must cover at least 8 h a day |
+| 331 / 333 = 1440 | 1440 min = 24 h, the boost duration the app wrote |
+| 271 `DHW_STATE_OF_CHARGE` = 35 | the app displays "35 % of hot water available" |
+| 292 / 293 hot water level requested / current | matches the naming PR #155 proposed |
+
+That is enough to use the list, and the names adopted here follow upstream
+PR #98, which draws on the same source, so the two do not collide.
+
+### Where this document disagrees with the list
+
+The list names **230** `DHW_CURRENT_HEATING_TYPE`, and PR #98 follows it. The
+field test recorded above points elsewhere: toggling the app between "heating
+allowed permanently" and "heating allowed during the custom ranges" moved 230,
+and heating started and stopped with it, at times of day outside the configured
+ranges. The app also *writes* 230, so it is a setting rather than a reported
+state.
+
+Both readings survive the evidence, and the list has a structural argument in
+its favour: 223 is the available heating type and 105012 the supported one, so
+a current heating type would complete a family of three. What would settle it
+is toggling that selector while the appliance is idle and will stay idle: if
+230 still flips with no heating cycle starting, it is the selector, not the
+type.
+
 ## 4. Platform notes
 
 - **Capability 233 (`boost_remaining_time`) is absent on this device.** Only 232

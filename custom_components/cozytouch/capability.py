@@ -860,6 +860,137 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         capability["type"] = "temperature"
         capability["category"] = "diag"
 
+    # Descriptors and limits published by the appliance, named after the
+    # capability list contributed in upstream issue #86. Several of them are
+    # corroborated by this device: 330 reads 15 and every programmed time it
+    # reports is a multiple of 15, 244 reads 3 and the daily time ranges hold
+    # exactly three slots, 236 reads 1 and only the first setpoint slot is
+    # ever used, and 307 reads 480 minutes where the app states off-peak must
+    # cover at least 8 hours a day. They are diagnostics: none of them moved
+    # over three days of normal use.
+
+    elif capabilityId == 150:
+        capability["name"] = "error_code_home"
+        capability["type"] = "string"
+        capability["value_type"] = CozytouchCapabilityVariableType.ARRAY
+        capability["category"] = "diag"
+
+    elif capabilityId == 164:
+        capability["name"] = "possible_lift_consumption_types"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 168:
+        capability["name"] = "available_modes"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 188:
+        capability["name"] = "home_services_capabilities"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 223:
+        capability["name"] = "available_heating_type"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 224:
+        capability["name"] = "estimation_support"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 236:
+        capability["name"] = "dhw_max_milestones_per_day"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 244:
+        capability["name"] = "dhw_max_prog_ranges_per_day"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 290:
+        capability["name"] = "error_code"
+        capability["type"] = "string"
+        capability["value_type"] = CozytouchCapabilityVariableType.ARRAY
+        capability["category"] = "diag"
+
+    elif capabilityId == 307:
+        capability["name"] = "min_heating_duration_period_for_one_day"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 329:
+        capability["name"] = "min_number_programming_range_per_day"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 330:
+        capability["name"] = "dhw_prog_range_step"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 331:
+        capability["name"] = "max_duration_prog_range"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 332:
+        capability["name"] = "min_duration_prog_range"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 333:
+        capability["name"] = "max_heating_duration_period_for_one_day"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 336:
+        capability["name"] = "dhw_hmi_capabilities"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 337:
+        capability["name"] = "dhw_main_cursor_info"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 338:
+        capability["name"] = "dhw_secondary_cursor_info"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 339:
+        capability["name"] = "dhw_hmi_data_inside"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 340:
+        capability["name"] = "dhw_water_setpoint_step"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 351:
+        capability["name"] = "home_connectivity_display"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 381:
+        capability["name"] = "device_ble_pairing_compatibility"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 105011:
+        capability["name"] = "supported_modes"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
+    elif capabilityId == 105012:
+        capability["name"] = "supported_heating_type"
+        capability["type"] = "int"
+        capability["category"] = "diag"
+
     else:
         return None
 
