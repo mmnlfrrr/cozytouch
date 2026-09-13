@@ -127,6 +127,46 @@ def test_malformed_payloads_do_not_raise():
         assert parse_latest_consumptions(payload) == {}
 
 
+
+def test_a_reported_period_with_an_empty_field_is_a_zero():
+    """A peak period the backend reports without a quantity is not unknown.
+
+    Off-peak alone is enough to know the series was measured, so the peak
+    tile reads 0 kWh rather than leaving the day's split half missing.
+    """
+    payload = [
+        {
+            "type": CONSUMPTION_TYPE_ELECTRICITY,
+            "unit": 1,
+            "currency": 101,
+            "consumptionPeriods": [
+                {
+                    "consumedQuantity": 2.01,
+                    "cost": 0.28,
+                    "date": 1788991200,
+                    "mode": CONSUMPTION_MODE_OFFPEAK,
+                },
+                {
+                    "consumedQuantity": None,
+                    "cost": None,
+                    "date": 1788991200,
+                    "mode": CONSUMPTION_MODE_PEAK,
+                },
+            ],
+        }
+    ]
+    latest = parse_latest_consumptions(payload)
+    assert (
+        get_field(latest, CONSUMPTION_TYPE_ELECTRICITY, CONSUMPTION_MODE_PEAK, "quantity")
+        == 0
+    )
+    assert (
+        get_field(
+            latest, CONSUMPTION_TYPE_ELECTRICITY, CONSUMPTION_MODE_OFFPEAK, "quantity"
+        )
+        == 2.01
+    )
+
 if __name__ == "__main__":
     for name, test in sorted(globals().items()):
         if name.startswith("test_") and callable(test):

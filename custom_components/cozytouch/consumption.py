@@ -104,9 +104,9 @@ def get_field(consumptions: dict, consumptionType: int, mode: int, field: str):
     """Read one field of a single tariff period of a series.
 
     A series reported without one of its tariff periods means nothing was
-    consumed under that tariff, which is a zero. Only a series that is absent
-    altogether is unknown, so the two are told apart rather than both reading
-    as no data.
+    consumed under that tariff, which is a zero; so does a period reported
+    with that field empty. Only a series that is absent altogether is unknown,
+    so the two are told apart rather than both reading as no data.
     """
     series_reported = False
     for key, entry in consumptions.items():
@@ -114,8 +114,8 @@ def get_field(consumptions: dict, consumptionType: int, mode: int, field: str):
             continue
 
         series_reported = True
-        if key[2] == mode:
-            return entry.get(field)
+        if key[2] == mode and entry.get(field) is not None:
+            return entry[field]
 
     return 0 if series_reported else None
 
