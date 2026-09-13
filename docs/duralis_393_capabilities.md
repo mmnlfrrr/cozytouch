@@ -246,6 +246,25 @@ The cheaper rate is the off-peak one, so `mode` 2 is off-peak and `mode` 1 is
 peak, which is what `consumption.py` already declared. High confidence: the
 ratio is a property of the tariff, not of this appliance.
 
+## 3h. 268 and 271 can come back empty, seemingly at a low tank
+
+Both the hot water reserve (271, a percentage) and the remaining V40 volume
+(268, litres) were populated in all 68 captures taken, at 35 and at 118 then
+107. On 13 September they read empty instead, and the sensors went unknown.
+
+Two things observed at that same moment, neither of them proof on its own:
+the vendor iOS application showed a plain droplet captioned "Niveau d'eau
+chaude faible" with no figure either, and the tank stratification was 37.5 C
+at the top against 25.1 in the middle and 24.4 at the bottom - genuinely
+little usable hot water. The V40 capacity (270) kept answering 300 L
+throughout, so the appliance was reachable and answering.
+
+So the empty value is not the integration losing a reading: the vendor app has
+no figure to show either. Whether "empty means low" is the rule needs the pair
+to be seen again - the value returning as the tank reheats, and disappearing
+again the next time it empties. Until then nothing is renamed and nothing is
+substituted for the missing number.
+
 ## 3g. Capability 283 does not read as a live off-peak flag
 
 The integration names 283 `off_peak_hours`. It is absent from the vendor
