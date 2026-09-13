@@ -38,6 +38,7 @@ from .consumption import (
     sum_field,
 )
 from .const import DOMAIN, CozytouchCapabilityVariableType
+from .duration import format_duration
 from .hub import Hub
 
 _LOGGER = logging.getLogger(__name__)
@@ -769,28 +770,7 @@ class CozytouchTimeSensor(CozytouchSensor):
     def get_value(self) -> str:
         """Retrieve value from hub."""
         value = self.coordinator.get_capability_value(self._capability["capabilityId"])
-        if value is not None:
-            strValue = ""
-            days = 0
-            remaining = int(value)
-            if remaining >= (60 * 24):
-                days = int(remaining / (60 * 24))
-                remaining -= days * (60 * 24)
-
-            hours = 0
-            if remaining >= 60:
-                hours = int(remaining / 60)
-                remaining -= hours * 60
-
-            minutes = int(remaining)
-
-            if days > 0:
-                strValue = str(days) + "d "
-
-            strValue += "%02d:%02d" % (hours, minutes)
-            return strValue
-
-        return None
+        return format_duration(value)
 
 
 class CozytouchTimezoneSensor(CozytouchSensor):
