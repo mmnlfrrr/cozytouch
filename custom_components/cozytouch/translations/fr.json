@@ -140,8 +140,8 @@
         },
         "number": {
             "applied_target_temperature":            { "name": "Consigne appliquée" },
-            "applied_target_temperature_percent":  { "name": "Pourcentage consigne appliquée" },
-            "target_temperature_dhw_percent":      { "name": "Pourcentage consigne ECS" },
+            "v40_applied_setpoint":  { "name": "Consigne V40 appliquée" },
+            "v40_setpoint_set_by_user":      { "name": "Consigne V40 réglée" },
             "prog_temperature_01":       { "name": "Consigne Prog 01 (Lun)" },
             "prog_temperature_02":       { "name": "Consigne Prog 02 (Mar)" },
             "prog_temperature_03":       { "name": "Consigne Prog 03 (Mer)" },
@@ -207,7 +207,7 @@
             "water_temperature_limit":  { "name": "Limite température eau" },
             "max_target_temperature_derogation": { "name": "Consigne max dérogation" },
             "absence_dhw_temperature":  { "name": "Température absence ECS" },
-            "custom_heating_ranges":    { "name": "Plages de chauffe personnalisées" },
+            "current_heating_type":    { "name": "Type de chauffe actuel" },
             "boost_end_time":           { "name": "Fin du Boost" },
             "energy_today":                  { "name": "Énergie aujourd'hui" },
             "energy_offpeak_today":          { "name": "Énergie heures creuses aujourd'hui" },
@@ -328,7 +328,7 @@
             "prog_mode":          { "name": "Mode Prog" },
             "quiet_mode":         { "name": "Mode Silence" },
             "swing_mode":         { "name": "Mode Oscillation" },
-            "custom_heating_ranges": { "name": "Plages de chauffe personnalisées" }
+            "current_heating_type": { "name": "Type de chauffe actuel" }
         }
     }
 }

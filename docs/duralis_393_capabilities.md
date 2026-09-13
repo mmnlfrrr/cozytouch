@@ -246,21 +246,42 @@ measurements made here:
 That is enough to use the list, and the names adopted here follow upstream
 PR #98, which draws on the same source, so the two do not collide.
 
-### Where this document disagrees with the list
+### Capability 230, settled against this document
 
-The list names **230** `DHW_CURRENT_HEATING_TYPE`, and PR #98 follows it. The
-field test recorded above points elsewhere: toggling the app between "heating
-allowed permanently" and "heating allowed during the custom ranges" moved 230,
-and heating started and stopped with it, at times of day outside the configured
-ranges. The app also *writes* 230, so it is a setting rather than a reported
-state.
+This document argued that 230 was the permanent / custom-ranges selector, on the
+strength of a field test. The vendor app names it `DHW_CURRENT_HEATING_TYPE`, and
+that name is authoritative: it comes from the capability enum in the Android app
+itself, whose constructor ties each name to its backend id.
 
-Both readings survive the evidence, and the list has a structural argument in
-its favour: 223 is the available heating type and 105012 the supported one, so
-a current heating type would complete a family of three. What would settle it
-is toggling that selector while the appliance is idle and will stay idle: if
-230 still flips with no heating cycle starting, it is the selector, not the
-type.
+The two readings turn out to be the same thing. The heating "type" this appliance
+switches between *is* permanent versus restricted to the programmed ranges, which
+is why toggling that setting moved 230, and why heating started and stopped with
+it outside the configured ranges. The name is now taken from the app; what the
+field test established, that `0` lifts the restriction and `1` reinstates it, is
+kept in the code comment, since the name alone does not say which value is which.
+
+Capabilities 105906 and 105907 were renamed for the same reason. They were called
+percentages of the 15-65 degree span here, which their values fit exactly, but the
+app calls them `DHW_V40_APPLIED_SETPOINT` and `DHW_V40_MANUALLY_FILLED_BY_USER`:
+the same 0-100 scale, expressed as a V40 volume rather than as a temperature
+percentage.
+
+### How the names were obtained, and what they do not cover
+
+The app carries an enum, `fr.modulotech.app.domain.model.devices.Capabilities`,
+whose constructor takes a name, an ordinal and the backend capability id. Reading
+its static initialiser and following the registers through each construction
+yields the id-to-name table directly, rather than by inference.
+
+Two results are worth recording:
+
+- The community list in issue #86 disagrees with the app on exactly one entry out
+  of roughly a hundred and fifty shared ones. It is a reliable source.
+- **None of the thirteen capabilities still unnamed here appear in that enum** —
+  15, 234, 278, 281, 284, 285, 286, 288, 308, 309, 310, 311 and 105301. The app
+  never refers to them, so no amount of further work on it will name them. They
+  are reported by the appliance but unused by the vendor's own client, which
+  places them in the backend or the firmware.
 
 ## 4. Platform notes
 

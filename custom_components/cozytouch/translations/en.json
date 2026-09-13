@@ -140,8 +140,8 @@
         },
         "number": {
             "applied_target_temperature":            { "name": "Applied Target Temperature" },
-            "applied_target_temperature_percent":  { "name": "Applied Target Temperature Percent" },
-            "target_temperature_dhw_percent":      { "name": "Target Temperature DHW Percent" },
+            "v40_applied_setpoint":  { "name": "V40 Applied Setpoint" },
+            "v40_setpoint_set_by_user":      { "name": "V40 Setpoint Set By User" },
             "prog_temperature_01":       { "name": "Prog Temperature 01 (Mon)" },
             "prog_temperature_02":       { "name": "Prog Temperature 02 (Tue)" },
             "prog_temperature_03":       { "name": "Prog Temperature 03 (Wed)" },
@@ -207,7 +207,7 @@
             "water_temperature_limit":  { "name": "Water Temperature Limit" },
             "max_target_temperature_derogation": { "name": "Max Target Temperature Derogation" },
             "absence_dhw_temperature":  { "name": "Absence DHW Temperature" },
-            "custom_heating_ranges":    { "name": "Custom Heating Ranges" },
+            "current_heating_type":    { "name": "Current Heating Type" },
             "boost_end_time":           { "name": "Boost End Time" },
             "energy_today":                  { "name": "Energy Today" },
             "energy_offpeak_today":          { "name": "Energy Off-Peak Today" },
@@ -328,7 +328,7 @@
             "prog_mode":          { "name": "Prog Mode" },
             "quiet_mode":         { "name": "Quiet Mode" },
             "swing_mode":         { "name": "Swing Mode" },
-            "custom_heating_ranges": { "name": "Custom Heating Ranges" }
+            "current_heating_type": { "name": "Current Heating Type" }
         }
     }
 }

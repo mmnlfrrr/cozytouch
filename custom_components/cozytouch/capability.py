@@ -491,14 +491,13 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
             capability["capabilityDuplicate"] = 222
 
     elif capabilityId == 230:
-        # Selects whether heating is allowed permanently ("0") or restricted to
-        # the daily time ranges held by 245-251 ("1"). Confirmed on a Duralis
-        # ACI HYB by toggling the setting in the official app outside those
-        # ranges: switching to "0" started the resistance within the minute
-        # (278 -> 2100 W) and switching back to "1" stopped it (278 -> 0).
-        # The ranges gate every mode, unlike the daily setpoints in 237-243
-        # which only apply in prog mode.
-        capability["name"] = "custom_heating_ranges"
+        # DHW_CURRENT_HEATING_TYPE in the vendor app's capability enum. On this
+        # appliance it takes two values, and toggling the app between "heating
+        # allowed permanently" and "heating allowed during the custom ranges"
+        # moves it: "0" lifted the restriction and started the resistance within
+        # the minute outside the configured ranges, "1" reinstated it and
+        # stopped heating. It is written by the app, so it is a setting.
+        capability["name"] = "current_heating_type"
         capability["type"] = "switch"
         capability["category"] = "sensor"
         capability["icon"] = "mdi:calendar-clock"
@@ -832,7 +831,7 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
         # The setpoint currently applied, expressed as a percentage of the
         # 15-65 degree span: it moved to 100, 94 and 86 in lockstep with 312
         # reading 65, 62 and 58, which is exactly (T - 15) / 50 * 100.
-        capability["name"] = "applied_target_temperature_percent"
+        capability["name"] = "v40_applied_setpoint"
         capability["type"] = "temperature_percent_adjustment_number"
         capability["category"] = "diag"
         capability["temperatureMin"] = 15.0
@@ -840,7 +839,7 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
 
     elif capabilityId == 105907:
         # Same percentage scale, tracking capability 22 instead.
-        capability["name"] = "target_temperature_dhw_percent"
+        capability["name"] = "v40_setpoint_set_by_user"
         capability["type"] = "temperature_percent_adjustment_number"
         capability["category"] = "diag"
         capability["temperatureMin"] = 15.0
