@@ -209,6 +209,9 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
 
         capability["type"] = "binary"
         capability["category"] = "sensor"
+        # Says "running / not running" rather than "activated", which is what
+        # someone looking at the card actually wants to know.
+        capability["device_class"] = "running"
 
     elif capabilityId == 100:
         capability["name"] = "water_pressure"
@@ -289,6 +292,7 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
 
         capability["type"] = "binary"
         capability["category"] = "sensor"
+        capability["device_class"] = "running"
 
     elif capabilityId == 154:
         capability["name"] = "zone_1"

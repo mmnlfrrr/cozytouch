@@ -6,7 +6,10 @@ import datetime
 import json
 import logging
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -655,6 +658,13 @@ class CozytouchBinarySensor(BinarySensorEntity, CozytouchSensor):
             icon=icon,
         )
         self._last_value: False
+        # Without a device class a binary sensor reads "Activé / Désactivé",
+        # which says nothing about what is activated. A class makes Home
+        # Assistant say it in the user's language: the heating element is
+        # running, or it is not.
+        device_class = self._capability.get("device_class")
+        if device_class:
+            self._attr_device_class = BinarySensorDeviceClass(device_class)
 
     @property
     def is_on(self) -> bool:
