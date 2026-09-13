@@ -917,7 +917,7 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
 
     elif capabilityId == 307:
         capability["name"] = "min_heating_duration_period_for_one_day"
-        capability["type"] = "int"
+        capability["type"] = "time"
         capability["category"] = "diag"
 
     elif capabilityId == 329:
@@ -927,22 +927,22 @@ def get_capability_infos(modelInfos: dict, capabilityId: int, capabilityValue: s
 
     elif capabilityId == 330:
         capability["name"] = "dhw_prog_range_step"
-        capability["type"] = "int"
+        capability["type"] = "time"
         capability["category"] = "diag"
 
     elif capabilityId == 331:
         capability["name"] = "max_duration_prog_range"
-        capability["type"] = "int"
+        capability["type"] = "time"
         capability["category"] = "diag"
 
     elif capabilityId == 332:
         capability["name"] = "min_duration_prog_range"
-        capability["type"] = "int"
+        capability["type"] = "time"
         capability["category"] = "diag"
 
     elif capabilityId == 333:
         capability["name"] = "max_heating_duration_period_for_one_day"
-        capability["type"] = "int"
+        capability["type"] = "time"
         capability["category"] = "diag"
 
     elif capabilityId == 336:

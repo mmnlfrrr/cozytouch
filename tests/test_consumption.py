@@ -83,6 +83,25 @@ def test_zero_is_kept_and_missing_series_is_none():
     assert get_field(parsed, 99, CONSUMPTION_MODE_PEAK, "quantity") is None
 
 
+def test_a_tariff_period_the_series_omits_reads_as_zero():
+    """A tariff the series does not mention was not consumed, so it is zero."""
+    parsed = load()
+    # The fixture holds both tariff periods, so drop one and check the result.
+    without_peak = {
+        key: value
+        for key, value in parsed.items()
+        if not (key[0] == CONSUMPTION_TYPE_ELECTRICITY and key[2] == CONSUMPTION_MODE_PEAK)
+    }
+    assert (
+        get_field(
+            without_peak, CONSUMPTION_TYPE_ELECTRICITY, CONSUMPTION_MODE_PEAK, "quantity"
+        )
+        == 0
+    )
+    # A series that is absent altogether stays unknown rather than reading zero.
+    assert get_field({}, CONSUMPTION_TYPE_ELECTRICITY, CONSUMPTION_MODE_PEAK, "quantity") is None
+
+
 def test_currency_comes_from_the_payload():
     """The currency is read from the payload, and unknown codes stay unset."""
     parsed = load()

@@ -101,12 +101,23 @@ def sum_field(consumptions: dict, consumptionType: int, field: str):
 
 
 def get_field(consumptions: dict, consumptionType: int, mode: int, field: str):
-    """Read one field of a single tariff period of a series."""
+    """Read one field of a single tariff period of a series.
+
+    A series reported without one of its tariff periods means nothing was
+    consumed under that tariff, which is a zero. Only a series that is absent
+    altogether is unknown, so the two are told apart rather than both reading
+    as no data.
+    """
+    series_reported = False
     for key, entry in consumptions.items():
-        if key[0] == consumptionType and key[2] == mode:
+        if key[0] != consumptionType:
+            continue
+
+        series_reported = True
+        if key[2] == mode:
             return entry.get(field)
 
-    return None
+    return 0 if series_reported else None
 
 
 def get_series_currency(consumptions: dict, consumptionType: int) -> str | None:
