@@ -37,6 +37,7 @@ from .consumption import (
     get_field,
     sum_field,
 )
+from .arrays import format_array, format_utc_offset, parse_array
 from .const import DOMAIN, CozytouchCapabilityVariableType
 from .duration import format_duration
 from .hub import Hub
@@ -438,7 +439,11 @@ class CozytouchSensor(SensorEntity, CoordinatorEntity):
     def get_value(self):
         """Retrieve value from hub."""
         if self._value_type == CozytouchCapabilityVariableType.ARRAY:
-            return "array"
+            return format_array(
+                self.coordinator.get_capability_value(
+                    self._capability["capabilityId"], defaultIfNotExist=None
+                )
+            )
 
         try:
             value = self.coordinator.get_capability_value(
@@ -456,6 +461,19 @@ class CozytouchSensor(SensorEntity, CoordinatorEntity):
             return value
 
         return value
+
+    @property
+    def extra_state_attributes(self) -> dict | None:
+        """Expose the rows of an array capability as an attribute."""
+        if self._value_type != CozytouchCapabilityVariableType.ARRAY:
+            return None
+
+        rows = parse_array(
+            self.coordinator.get_capability_value(
+                self._capability["capabilityId"], defaultIfNotExist=None
+            )
+        )
+        return None if rows is None else {"enregistrements": rows}
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -799,17 +817,7 @@ class CozytouchTimezoneSensor(CozytouchSensor):
     def get_value(self) -> str:
         """Retrieve value from hub."""
         value = self.coordinator.get_capability_value(self._capability["capabilityId"])
-        if value is not None:
-            if float(value) > 0:
-                strValue = "GMT+%d" % (int(value) / 3600)
-            elif float(value) < 0:
-                strValue = "GMT-%d" % (abs(int(value)) / 3600)
-            else:
-                strValue = "GMT"
-
-            return strValue
-
-        return None
+        return format_utc_offset(value)
 
 
 class CozytouchProgSensor(CozytouchSensor):
