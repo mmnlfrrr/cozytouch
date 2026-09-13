@@ -226,6 +226,42 @@ What 218 actually is stays unknown, so it is not renamed here: like the tank
 numbering above, this is one appliance against a mapping someone else derived,
 and it needs a second unit before either reading is treated as settled.
 
+
+## 3f. Which tariff period is which, settled by the price
+
+The consumption endpoint splits the electricity series with a `mode` field, and
+nothing in it says which value is the off-peak one. Dividing cost by quantity
+does: across four independent captures, at daily, monthly and yearly
+periodicity, `mode` 2 is billed at 0.1436 EUR/kWh and `mode` 1 at 0.2157
+EUR/kWh, to within a hundredth of a centime.
+
+| capture | mode 2 | mode 1 |
+| --- | --- | --- |
+| daily | 29.06 kWh / 4.17 EUR -> 0.1435 | 1.16 kWh / 0.25 EUR -> 0.2155 |
+| daily, longer | 103.12 kWh / 14.81 EUR -> 0.1436 | 1.16 kWh / 0.25 EUR -> 0.2155 |
+| monthly | 515.36 kWh / 74.06 EUR -> 0.1437 | 167.47 kWh / 36.16 EUR -> 0.2159 |
+| yearly | 515.36 kWh / 74.06 EUR -> 0.1437 | 167.47 kWh / 36.16 EUR -> 0.2159 |
+
+The cheaper rate is the off-peak one, so `mode` 2 is off-peak and `mode` 1 is
+peak, which is what `consumption.py` already declared. High confidence: the
+ratio is a property of the tariff, not of this appliance.
+
+## 3g. Capability 283 does not read as a live off-peak flag
+
+The integration names 283 `off_peak_hours`. It is absent from the vendor
+application's capability enum and from the community list in issue #86, so the
+name is a guess to begin with, and on this appliance it read `0` in every one
+of the captures taken - including captures where the resistance was running
+(99 = 1) and days whose whole consumption was billed at the off-peak rate
+established above.
+
+A live tariff-period flag would have to be 1 at some point during those hours.
+It never was. That is not proof of what 283 means, only evidence against the
+reading the name suggests, so the entity is left in place and simply not put on
+a dashboard where it would assert something unestablished. The peak/off-peak
+split shown to the user comes from the consumption endpoint instead, which is
+proven above.
+
 ## 3f. Capability names taken from the community list
 
 Upstream issue #86 carries a `capabilities.csv` of 151 id/name pairs
